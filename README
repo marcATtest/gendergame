@@ -1,0 +1,80 @@
+A) Easiest: build locally, push the build to GitHub Pages
+1) Make sure your game is pygbag-ready
+
+Your entrypoint must be main.py
+
+The main loop must be async-aware (async def main(): ...; await asyncio.sleep(0))
+
+(You already got guidance on this in the pygbag step.)
+
+2) Build
+
+From the folder that contains main.py:
+
+pip install --upgrade pygbag
+pygbag .
+
+
+This creates a build/ output directory (commonly build/web/) containing an index.html and the runtime files.
+
+3) Put the built site where GitHub Pages can serve it
+
+Option A1 (recommended): copy the build output into a /docs folder in your repo:
+
+rm -rf docs
+mkdir -p docs
+cp -r build/web/* docs/
+
+
+Commit and push:
+
+git add docs
+git commit -m "Deploy web build"
+git push
+
+4) Turn on GitHub Pages
+
+In your repo:
+
+Settings → Pages
+
+Under “Build and deployment”, choose Deploy from a branch
+
+Select branch: main (or master)
+
+Folder: /docs
+
+Your game will be at:
+
+https://<username>.github.io/<repo>/
+
+B) Cleaner: use a gh-pages branch (no build artifacts on main)
+
+Same idea, but the website files live on a separate branch.
+
+Build with pygbag (pygbag .)
+
+Create/update gh-pages branch with the contents of build/web/
+
+In Settings → Pages, set Source = deploy from branch, Branch = gh-pages, folder = /
+
+This keeps main clean.
+
+Common gotchas (and quick fixes)
+1) Paths / base URL
+
+GitHub Pages for project sites serves at /<repo>/…. If your build assumes it’s hosted at /, assets can 404.
+
+Fixes:
+
+Prefer relative paths in your game/assets loads
+
+If pygbag provides a way to set base paths in its template/build options, use that (pygbag docs cover packaging + uploading).
+
+2) Autoplay audio
+
+Browsers block autoplay until user interaction; start music after a click/keypress.
+
+3) Filenames with accents / weird escapes
+
+For web builds it’s safest to rename files/modules to ASCII (you already have at least one risky filename in your zip).
